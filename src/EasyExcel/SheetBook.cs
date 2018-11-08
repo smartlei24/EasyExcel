@@ -11,7 +11,7 @@ namespace EasyExcel
         private readonly IStyleManager _styleManager;
 
         public List<T> Data { get; private set; }
-        public List<dynamic> Columns { get; private set; } = new List<dynamic>();
+        public List<Column<T>> Columns { get; private set; } = new List<Column<T>>();
 
         public float TitleRowHight { get; private set; } = 30;
         public float BodyRowHight { get; private set; } = 20;
@@ -169,7 +169,6 @@ namespace EasyExcel
         {
             for (int i = 0; i < Columns.Count; i++)
             {
-
                 _sheet.SetColumnWidth(i, Columns[i].Width * 256);
             }
         }

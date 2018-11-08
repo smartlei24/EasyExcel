@@ -12,7 +12,7 @@ namespace EasyExcel
         public CellType CellType { get; private set; } = CellType.String;
         public ICellStyle CellStyle { get; internal set; }
         internal Action<ICellStyle> createStyleFunction;
-        private Expression<Func<T, object>> valueExpression;
+        private dynamic valueExpression;
         public Type ValueType { get; private set; }
         public int Width { get; private set; } = 9;
         private dynamic value;
@@ -41,8 +41,7 @@ namespace EasyExcel
         /// <returns></returns>
         public Column<T> WithValue<TResult>(Expression<Func<T, TResult>> func)
         {
-            var conversion = Expression.Convert(func.Body, typeof(object));
-            valueExpression = Expression.Lambda<Func<T, object>>(conversion, func.Parameters);
+            valueExpression = func;
             ValueType = func.ReturnType;
             return this;
         }
