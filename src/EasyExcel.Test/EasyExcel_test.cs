@@ -85,7 +85,7 @@ namespace EasyExcel.Test {
 
             book1.HasColumn ("id列")
                 .WithValue (i => i.id)
-                .WithFormmat ("0");
+                .WithFormat ("0");
 
             book1.HasColumn ("计算列")
                 .WithValue (i => $"name: {i.name}, amount: {i.amount}")

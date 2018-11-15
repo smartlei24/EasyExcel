@@ -11,8 +11,8 @@ namespace EasyExcel
         public string FormatString { get; private set; }
         public CellType CellType { get; private set; } = CellType.String;
         public ICellStyle CellStyle { get; internal set; }
-        internal Action<ICellStyle> createStyleFunction;
-        private Expression<Func<T, object>> valueExpression;
+        internal Action<ICellStyle> setStyleAction;
+        private dynamic valueExpression;
         public Type ValueType { get; private set; }
         public int Width { get; private set; } = 9;
         private dynamic value;
@@ -27,7 +27,7 @@ namespace EasyExcel
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Column<T> WithValue(dynamic value)
+        public Column<T> WithValue<TResult>(TResult value)
         {
             this.value = value;
             ValueType = value.GetType();
@@ -41,8 +41,7 @@ namespace EasyExcel
         /// <returns></returns>
         public Column<T> WithValue<TResult>(Expression<Func<T, TResult>> func)
         {
-            var conversion = Expression.Convert(func.Body, typeof(object));
-            valueExpression = Expression.Lambda<Func<T, object>>(conversion, func.Parameters);
+            valueExpression = func;
             ValueType = func.ReturnType;
             return this;
         }
@@ -64,7 +63,7 @@ namespace EasyExcel
         /// <param name="action"></param>
         public Column<T> WithBodyStyle(Action<ICellStyle> action)
         {
-            createStyleFunction = action;
+            setStyleAction = action;
             return this;
         }
 
@@ -95,7 +94,7 @@ namespace EasyExcel
         /// </summary>
         /// <param name="formatString"></param>
         /// <returns></returns>
-        public Column<T> WithFormmat(string formatString)
+        public Column<T> WithFormat(string formatString)
         {
             FormatString = formatString;
             return this;

@@ -11,7 +11,7 @@ namespace EasyExcel
         private readonly IStyleManager _styleManager;
 
         public List<T> Data { get; private set; }
-        public List<dynamic> Columns { get; private set; } = new List<dynamic>();
+        public List<Column<T>> Columns { get; private set; } = new List<Column<T>>();
 
         public float TitleRowHight { get; private set; } = 30;
         public float BodyRowHight { get; private set; } = 20;
@@ -182,25 +182,20 @@ namespace EasyExcel
                 _sheet.GetRow(0).GetCell(i).CellStyle = TitleStyle;
 
                 ICellStyle style;
-                if (Columns[i].createStyleFunction != null)
+                if (Columns[i].setStyleAction != null)
                 {
                     style = _sheet.Workbook.CreateCellStyle();
-                    Columns[i].createStyleFunction(style);
+                    Columns[i].setStyleAction(style);
                 }
                 else
                 {
                     style = _styleManager.GetColumnStyle<T>(Columns[i]);
                 }
 
-                _sheet.SetDefaultColumnStyle(i, style);
-
-                if (HasStriped)
+                var stripedStyle = _styleManager.GetStripeStyle(style);
+                for (int r = 1; r <= Data.Count; r++)
                 {
-                    var stripedStyle = _styleManager.GetStripeStyle(style);
-                    for (int r = 2; r <= Data.Count; r = r + 2)
-                    {
-                        _sheet.GetRow(r).GetCell(i).CellStyle = stripedStyle;
-                    }
+                    _sheet.GetRow(r).GetCell(i).CellStyle = HasStriped && r % 2 == 0 ? stripedStyle : style;
                 }
             }
         }
@@ -252,7 +247,7 @@ namespace EasyExcel
 
                 // 处理除边角外第一列的左边框
                 ICellStyle fristColStyle = _sheet.Workbook.CreateCellStyle();
-                fristColStyle.CloneStyleFrom(_sheet.GetColumnStyle(0));
+                fristColStyle.CloneStyleFrom(_styleManager.GetColumnStyle(Columns[0]));
                 fristColStyle.BorderLeft = BorderStyle.Medium;
                 var fristColStripedStyle = _styleManager.GetStripeStyle(fristColStyle);
                 fristColStripedStyle.BorderLeft = BorderStyle.Medium;
@@ -263,7 +258,7 @@ namespace EasyExcel
 
                 // 处理除边角外最后一列的右边框
                 ICellStyle lastColStyle = _sheet.Workbook.CreateCellStyle();
-                lastColStyle.CloneStyleFrom(_sheet.GetColumnStyle(maxColIndex));
+                lastColStyle.CloneStyleFrom(_styleManager.GetColumnStyle(Columns[maxColIndex]));
                 lastColStyle.BorderRight = BorderStyle.Medium;
                 var lastColStripedStyle = _styleManager.GetStripeStyle(lastColStyle);
                 lastColStripedStyle.BorderRight = BorderStyle.Medium;

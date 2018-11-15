@@ -44,10 +44,10 @@ internal class StyleManager : IStyleManager
                 return column.CellStyle;
             }
 
-            if (column.createStyleFunction != null)
+            if (column.setStyleAction != null)
             {
                 column.CellStyle = _workbook.CreateCellStyle();
-                column.createStyleFunction(column.CellStyle);
+                column.setStyleAction(column.CellStyle);
                 return column.CellStyle;
             }
 
@@ -92,11 +92,19 @@ internal class StyleManager : IStyleManager
         private bool IsNumbericType(Type type)
         {
             return type == typeof(int)
-            || type == typeof(short)
-            || type == typeof(long)
-            || type == typeof(uint)
-            || type == typeof(float)
             || type == typeof(double)
+            || type == typeof(long)
+            || type == typeof(short)
+            || type == typeof(float)
+            || type == typeof(Int16)
+            || type == typeof(Int32)
+            || type == typeof(Int64)
+            || type == typeof(uint)
+            || type == typeof(UInt16)
+            || type == typeof(UInt32)
+            || type == typeof(UInt64)
+            || type == typeof(sbyte)
+            || type == typeof(Single)
             || type == typeof(decimal);
         }
 
