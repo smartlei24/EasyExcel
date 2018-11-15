@@ -169,7 +169,6 @@ namespace EasyExcel
         {
             for (int i = 0; i < Columns.Count; i++)
             {
-
                 _sheet.SetColumnWidth(i, Columns[i].Width * 256);
             }
         }
