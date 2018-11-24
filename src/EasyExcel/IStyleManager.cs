@@ -4,9 +4,9 @@ namespace EasyExcel
 {
     internal interface IStyleManager
     {
-        ICellStyle GetDefaultTitleStyle();
+        ICellStyle GetTitleStyle();
 
-        ICellStyle GetColumnStyle<T>(Column<T> column);
+        ICellStyle GetBodyCellStyle<T>(Column<T> column);
 
         ICellStyle GetStripeStyle(ICellStyle baseStyle);
     }

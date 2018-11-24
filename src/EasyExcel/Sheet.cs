@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace EasyExcel
 {
-    public class SheetBook<T> where T : class
+    public class Sheet<T> where T : class
     {
         private ISheet _sheet;
         private readonly IStyleManager _styleManager;
@@ -19,14 +19,13 @@ namespace EasyExcel
         public ICellStyle TitleStyle { get; private set; }
 
         public bool FreezeTitle { get; private set; } = true;
-        public bool OutBorder { get; private set; } = true;
+        public bool HasOutBorder { get; private set; } = true;
         public bool HasStriped { get; private set; } = true;
 
-        internal SheetBook(IWorkbook workbook, string name, List<T> data)
+        internal Sheet(IWorkbook workbook, string name)
         {
             _sheet = workbook.CreateSheet(name);
             _styleManager = new StyleManager(_sheet.Workbook);
-            Data = data;
         }
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace EasyExcel
         /// </summary>
         /// <param name="columnName">显示的列名</param>
         /// <returns></returns>
-        public Column<T> HasColumn(string columnName)
+        public Column<T> AddColumn(string columnName)
         {
             var column = new Column<T>(columnName);
             Columns.Add(column);
@@ -47,9 +46,20 @@ namespace EasyExcel
         /// </summary>
         /// <param name="freeze"></param>
         /// <returns></returns>
-        public SheetBook<T> HasFreezeTitle(bool freeze = true)
+        public Sheet<T> IsFreezeTitle(bool freeze = true)
         {
             FreezeTitle = freeze;
+            return this;
+        }
+
+        /// <summary>
+        /// 指定内容是否含有行间隔条纹
+        /// </summary>
+        /// <param name="has"></param>
+        /// <returns></returns>
+        public Sheet<T> IsStripedRow(bool has = true)
+        {
+            HasStriped = has;
             return this;
         }
 
@@ -58,17 +68,17 @@ namespace EasyExcel
         /// </summary>
         /// <param name="freeze"></param>
         /// <returns></returns>
-        public SheetBook<T> HasOutBolder(bool outBolder = true)
+        public Sheet<T> IsHasBorder(bool outBorder = true)
         {
-            OutBorder = outBolder;
+            HasOutBorder = outBorder;
             return this;
         }
 
         /// <summary>
-        /// 设置标题的单元格样式
+        /// 指定标题的单元格样式
         /// </summary>
         /// <param name="action"></param>
-        public SheetBook<T> WithTitleStyle(Action<ICellStyle> action)
+        public Sheet<T> HasTitleStyle(Action<ICellStyle> action)
         {
             TitleStyle = _sheet.Workbook.CreateCellStyle();
             action(TitleStyle);
@@ -76,44 +86,39 @@ namespace EasyExcel
         }
 
         /// <summary>
-        /// 设置标题行的行高
+        /// 指定标题行的行高
         /// </summary>
         /// <param name="height"></param>
-        public SheetBook<T> WithTitleRowHeight(float height = 30f)
+        public Sheet<T> HasTitleRowHeight(float height = 30f)
         {
             TitleRowHight = height;
             return this;
         }
 
         /// <summary>
-        /// 设置内容的行高
+        /// 指定内容的行高
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        public SheetBook<T> WithBodyRowHeight(float height = 20f)
+        public Sheet<T> HasBodyRowHeight(float height = 20f)
         {
             BodyRowHight = height;
             return this;
         }
 
         /// <summary>
-        /// 设置内容是否含有行间隔条纹
+        /// 使用数据填充表格
         /// </summary>
-        /// <param name="has"></param>
         /// <returns></returns>
-        public SheetBook<T> HasStripedRow(bool has = true)
+        public Sheet<T> Fill(List<T> data)
         {
-            HasStriped = has;
+            Data = data;
             return this;
         }
 
-        /// <summary>
-        /// 生成表格
-        /// </summary>
-        /// <returns></returns>
         public ISheet Build()
         {
-            SoftColumms();
+            SortColumns();
             BuildTitle();
             BuildBody();
             BuildStyle();
@@ -130,12 +135,13 @@ namespace EasyExcel
             for (int i = 0; i < Columns.Count; i++)
             {
                 cell = row.CreateCell(i, CellType.String);
-                Columns[i].SetTitleCell(cell);
+                            cell.SetCellValue(Columns[i].Name);
+            cell.SetCellType(CellType.String);
             }
 
             if (FreezeTitle)
             {
-                _sheet.CreateFreezePane(Columns.Count, 1);
+                _sheet.CreateFreezePane(0, 1);
             }
         }
 
@@ -169,7 +175,15 @@ namespace EasyExcel
         {
             for (int i = 0; i < Columns.Count; i++)
             {
-                _sheet.SetColumnWidth(i, Columns[i].Width * 256);
+                // 若未指定该列的宽度，则自适应
+                if (Columns[i].Width < 0)
+                {
+                    _sheet.AutoSizeColumn(i);
+                }
+                else
+                {
+                    _sheet.SetColumnWidth(i, Convert.ToInt32(Columns[i].Width * 256));
+                }
             }
         }
 
@@ -177,7 +191,7 @@ namespace EasyExcel
         {
             for (int i = 0; i < Columns.Count; i++)
             {
-                TitleStyle = TitleStyle ?? _styleManager.GetDefaultTitleStyle();
+                TitleStyle = TitleStyle ?? _styleManager.GetTitleStyle();
                 _sheet.GetRow(0).GetCell(i).CellStyle = TitleStyle;
 
                 ICellStyle style;
@@ -188,7 +202,7 @@ namespace EasyExcel
                 }
                 else
                 {
-                    style = _styleManager.GetColumnStyle<T>(Columns[i]);
+                    style = _styleManager.GetBodyCellStyle<T>(Columns[i]);
                 }
 
                 var stripedStyle = _styleManager.GetStripeStyle(style);
@@ -201,7 +215,7 @@ namespace EasyExcel
 
         private void BuildOutBorder()
         {
-            if (OutBorder)
+            if (HasOutBorder)
             {
                 var maxColIndex = Columns.Count - 1;
                 var maxRowIndex = Data.Count;
@@ -243,10 +257,14 @@ namespace EasyExcel
                 TitleStyle.BorderTop = BorderStyle.Medium;
                 TitleStyle.BorderBottom = BorderStyle.Thin;
                 TitleStyle.BorderRight = BorderStyle.Thin;
+                
+                if(maxRowIndex == 0){
+                    return;
+                }
 
                 // 处理除边角外第一列的左边框
                 ICellStyle fristColStyle = _sheet.Workbook.CreateCellStyle();
-                fristColStyle.CloneStyleFrom(_styleManager.GetColumnStyle(Columns[0]));
+                fristColStyle.CloneStyleFrom(_sheet.GetRow(1).GetCell(0).CellStyle);
                 fristColStyle.BorderLeft = BorderStyle.Medium;
                 var fristColStripedStyle = _styleManager.GetStripeStyle(fristColStyle);
                 fristColStripedStyle.BorderLeft = BorderStyle.Medium;
@@ -257,7 +275,7 @@ namespace EasyExcel
 
                 // 处理除边角外最后一列的右边框
                 ICellStyle lastColStyle = _sheet.Workbook.CreateCellStyle();
-                lastColStyle.CloneStyleFrom(_styleManager.GetColumnStyle(Columns[maxColIndex]));
+                lastColStyle.CloneStyleFrom(_sheet.GetRow(1).GetCell(maxColIndex).CellStyle);
                 lastColStyle.BorderRight = BorderStyle.Medium;
                 var lastColStripedStyle = _styleManager.GetStripeStyle(lastColStyle);
                 lastColStripedStyle.BorderRight = BorderStyle.Medium;
@@ -282,7 +300,7 @@ namespace EasyExcel
         /// <summary>
         /// 设置列的顺序
         /// </summary>
-        private void SoftColumms()
+        private void SortColumns()
         {
             var autoSortColumns = Columns.Where(i => i.Index < 0).ToList();
             Columns.Where(i => i.Index >= 0)
