@@ -106,7 +106,7 @@ sheet1.AddColumn("TestCol1");
 ### Example
 
 ```csharp
-// 仅为举例， 非特殊情况，可仅指定列名、值、列宽和Index即可
+// 仅为举例， 非特殊情况，可仅指定列名、值即可
 sheet1.Column ("Test AutoStyle")
     .Value(i => i.Cost * i.Quantity)
     .HasWidth(3)
