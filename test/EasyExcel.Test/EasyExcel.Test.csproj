@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../EasyExcel/EasyExcel.csproj" />
+    <ProjectReference Include="../../src/EasyExcel/EasyExcel.csproj" />
   </ItemGroup>
 
 </Project>

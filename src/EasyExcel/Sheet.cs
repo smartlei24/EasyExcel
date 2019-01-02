@@ -242,8 +242,8 @@ namespace EasyExcel
                 rightTopStyle.CloneStyleFrom(rightTopCell.CellStyle);
                 rightTopStyle.BorderLeft = BorderStyle.Thin;
                 rightTopStyle.BorderTop = BorderStyle.Medium;
-                leftTopStyle.BorderRight = BorderStyle.Medium;
-                leftTopStyle.BorderBottom = BorderStyle.Thin;
+                rightTopStyle.BorderRight = BorderStyle.Medium;
+                rightTopStyle.BorderBottom = BorderStyle.Thin;
                 rightTopCell.CellStyle = rightTopStyle;
 
                 ICellStyle rightTailStyle = _sheet.Workbook.CreateCellStyle();
