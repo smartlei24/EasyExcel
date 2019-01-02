@@ -104,7 +104,7 @@ internal class StyleManager : IStyleManager
             { typeof(DateTime), "MM/dd/yyyy"},
             { typeof(string), "TEXT"},
             { typeof(char), "TEXT" },
-            { typeof(decimal), "$#,##0.00" },
+            { typeof(decimal), "#,##0.00" },
             { typeof(int), "0" },
             { typeof(short), "0"},
             { typeof(long), "0"},

@@ -67,7 +67,7 @@ public class Workbook
         /// </summary>
         XSSF = 1,
         /// <summary>
-        /// XSSF 的低内存占用版本，可解决其他两者数据量超出65536条后内存溢出的问题
+        /// XSSF 的低内存占用版本，可解决其他两者数据量超出65536条后内存溢出的问题，后缀名为 .xlsx, 但目前样式有问题
         /// </summary>
         SXSSF = 2
     }

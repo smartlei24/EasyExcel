@@ -102,6 +102,8 @@ namespace EasyExcel.Test
                 .Value (i => i.name)
                 .HasIndex (1);
 
+            book1.Fill(testData);
+
             var d = excel.Build();
 
             using (Stream file = new FileStream (Path.Combine (Environment.CurrentDirectory, "test.xlsx"), FileMode.Create, FileAccess.Write)) {
