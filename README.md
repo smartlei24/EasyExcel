@@ -101,7 +101,7 @@ sheet1.AddColumn("TestCol1");
 | Column<T> HasStyle(Action<ICellStyle> action)           | 指定设定该列的内容单元格样式，一旦使用，默认样式失效！*非必要不推荐使用。* |
 | Column<T> HasIndex(uint index)                              | 指定在表格中该列的位置，以0起始。不指定时，则按照声明顺序排列，再将已指定的列插入到指定的位置。 |
 | Column<T> HasCellType(CellType cellType)                    | 指定该列的类型，详见 [POI](https://poi.apache.org/apidocs/dev/org/apache/poi/ss/usermodel/CellType.html) 文档， 默认为`CellType.String` |
-| Column<T> HasFormat(string formatString)                   | 指定该列的格式化字符串， 若不指定则会根据数据类型进行默认格式化（如 `decimal` 则会以`$#,##0.00` 进行格式化）。*非必要不推荐使用。* |
+| Column<T> HasFormat(string formatString)                   | 指定该列的格式化字符串， 若不指定则会根据数据类型进行默认格式化（如 `decimal` 则会以`#,##0.00` 进行格式化）。*非必要不推荐使用。* |
 
 ### Example
 
