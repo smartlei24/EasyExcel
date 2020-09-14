@@ -18,8 +18,11 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet restore src/EasyExcel/EasyExcel.csproj
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore src/EasyExcel/EasyExcel.csproj
+    - name: Install Test dependencies
+      run: dotnet restore test/EasyExcel.Test
+    - name: Run Test
+      run: dotnet test --no-restore --verbosity normal
+    
