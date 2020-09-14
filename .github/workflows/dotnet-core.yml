@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore src/EasyExcel/EasyExcel.csproj
     - name: Install Test dependencies
-      run: dotnet restore test/EasyExcel.Test
+      run: dotnet restore test/EasyExcel.Test/EasyExcel.Test.csproj
     - name: Run Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity normal test/EasyExcel.Test/EasyExcel.Test.csproj
     
